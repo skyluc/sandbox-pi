@@ -1,0 +1,7 @@
+---
+
+- name: push tinc hosts files to gateway
+  copy:
+    src: "/tmp/ansible/tinc/hosts-local/"
+    dest: "/etc/tinc/skylucPerso/hosts/"
+

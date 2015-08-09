@@ -1,0 +1,11 @@
+---
+
+- name: check can write in hosts tinc folder
+  file:
+    path: "/etc/tinc/skylucPerso/hosts/empty"
+    state: touch
+
+- name: check can remove created file
+  file:
+    path: "/etc/tinc/skylucPerso/hosts/empty"
+    state: absent

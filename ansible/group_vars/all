@@ -1,0 +1,6 @@
+---
+domainName: pi.skyluc.org
+
+gitPrivateKeyFile: ~/.ssh/id_rsa_pi_github
+
+

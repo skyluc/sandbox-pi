@@ -1,0 +1,12 @@
+---
+
+- name: tinc - start daemon
+  command: "/etc/init.d/tinc restart"
+  sudo: yes
+
+- name: tinc - check vpn is up (gateway is accessible)
+  wait_for:
+    host: 10.110.0.1
+    port: 22
+    timeout: 5
+

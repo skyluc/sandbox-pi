@@ -1,0 +1,17 @@
+---
+
+- name: check GitHub private key
+  stat:
+    path: "{{ gitPrivateKeyFile }}"
+    follow: True
+  register: gitKeyFile
+
+- name: check GitHub private key is a file
+  fail:
+    msg: "'{{ gitPrivateKeyFile }}' doesn't exist, or is not a file"
+  when: (not gitKeyFile.stat.exists) or gitKeyFile.stat.isdir
+
+- name: check GitHub private key permission
+  fail:
+    msg: "File permission for '{{ gitPrivateKeyFile }}' are incorrect. The file should only be accessible by 'user'. Expected mode: 0600"
+  when: gitKeyFile.stat.mode != "0600"

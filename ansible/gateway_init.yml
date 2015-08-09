@@ -1,0 +1,33 @@
+---
+
+- hosts: local
+  roles:
+    - local_clean
+
+#- hosts: tinc_gateway
+#  roles:
+#    - tinc_check
+#
+#- hosts: gateway
+#  roles:
+#    - git_check
+#
+#- hosts: gateway
+#  roles:
+#    - aptget_init
+
+- hosts: tinc_gateway
+  roles:
+    - tinc_fetch_gateway
+
+- hosts: gateway
+  roles:
+    - tinc_config
+
+- hosts: tinc_gateway
+  roles:
+    - tinc_push_hosts
+
+- hosts: gateway
+  roles:
+    - tinc_run

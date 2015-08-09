@@ -1,0 +1,7 @@
+---
+
+- name: fetch tinc gateway host file
+  fetch:
+    src: "/etc/tinc/skylucPerso/hosts/nostromo"
+    dest: "/tmp/ansible/tinc/hosts/"
+    flat: yes

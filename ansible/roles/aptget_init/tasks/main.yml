@@ -1,0 +1,13 @@
+---
+
+- name: update the installed packages
+  apt:
+    update_cache: yes
+    upgrade: "yes"
+  sudo: yes
+
+- name: minimum packages
+  apt:
+    name: vim
+    state: present
+  sudo: yes

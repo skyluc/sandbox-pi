@@ -1,0 +1,6 @@
+---
+
+- name: remove tmp folder
+  file:
+    path: "/tmp/ansible"
+    state: absent

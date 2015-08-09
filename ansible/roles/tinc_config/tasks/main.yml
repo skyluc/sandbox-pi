@@ -1,0 +1,69 @@
+---
+
+- name: install tinc
+  apt:
+    name: tinc
+    state: present
+  sudo: yes
+
+- name: tinc - sub-network directory
+  file:
+    dest: "/etc/tinc/skylucPerso/hosts"
+    state: directory
+  sudo: yes
+
+- name: tinc - up script
+  template:
+    src: tinc-up.j2
+    dest: "/etc/tinc/skylucPerso/tinc-up"
+    mode: 0744
+  sudo: yes
+
+- name: tinc - down script
+  template:
+    src: tinc-down.j2
+    dest: "/etc/tinc/skylucPerso/tinc-down"
+    mode: 0744
+  sudo: yes
+
+- name: tinc - config file
+  template:
+    src: tinc.conf.j2
+    dest: "/etc/tinc/skylucPerso/tinc.conf"
+  sudo: yes
+
+- name: tinc - node description in hosts folder
+  template:
+    src: hosts/node_name.j2
+    dest: "/etc/tinc/skylucPerso/hosts/{{ hostname }}"
+  sudo: yes
+
+- name: tinc - generate key pair
+  command: "/usr/sbin/tincd -n skylucPerso -K4096"
+  sudo: yes
+
+- name: tinc - transfer the node hosts config
+  fetch:
+    src: "/etc/tinc/skylucPerso/hosts/{{ hostname }}"
+    dest: "/tmp/ansible/tinc/hosts-local/"
+    flat: yes
+
+- name: tinc - copy the gateway hosts config
+  copy:
+    src: "/tmp/ansible/tinc/hosts/nostromo"
+    dest: "/etc/tinc/skylucPerso/hosts/"
+  sudo: yes
+
+- name: tinc - configure the network name for the daemon
+  lineinfile:
+    dest: "/etc/tinc/nets.boot"
+    line: "skylucPerso"
+  sudo: yes
+
+- name: tinc - add logging to the daemon
+  lineinfile:
+    dest: "/etc/init.d/tinc"
+    line: "EXTRA=${EXTRA:---logfile}"
+    insertafter: "^DAEMON="
+  sudo: yes
+
