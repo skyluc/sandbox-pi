@@ -63,7 +63,7 @@
 - name: tinc - add logging to the daemon
   lineinfile:
     dest: "/etc/init.d/tinc"
-    line: "EXTRA=${EXTRA:---logfile}"
+    line: "EXTRA=${EXTRA:---logfile -d 2}"
     insertafter: "^DAEMON="
   sudo: yes
 
