@@ -16,18 +16,25 @@
 #  roles:
 #    - aptget_init
 
-- hosts: tinc_gateway
-  roles:
-    - tinc_fetch_gateway
+#- hosts: tinc_gateway
+#  roles:
+#    - tinc_fetch_gateway
+#
+#- hosts: gateway
+#  roles:
+#    - tinc_config
+#
+#- hosts: tinc_gateway
+#  roles:
+#    - tinc_push_hosts
+#
+#- hosts: gateway
+#  roles:
+#    - tinc_run
 
 - hosts: gateway
   roles:
-    - tinc_config
+    - network_config
+#    - dhcp_config
 
-- hosts: tinc_gateway
-  roles:
-    - tinc_push_hosts
 
-- hosts: gateway
-  roles:
-    - tinc_run

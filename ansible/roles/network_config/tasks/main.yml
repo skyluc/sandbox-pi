@@ -1,0 +1,5 @@
+---
+
+- name: set hostname
+  command: hostname '{{ hostname }}'
+  sudo: yes
