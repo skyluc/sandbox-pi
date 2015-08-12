@@ -4,15 +4,11 @@
   roles:
     - local_clean
 
-#- hosts: tinc_gateway
-#  roles:
-#    - tinc_check
+- hosts: tinc_gateway
+  roles:
+    - tinc_check
 
-#- hosts: gateway
-#  roles:
-#    - git_check
-
-#- hosts: gateway
+#- hosts: nodes 
 #  roles:
 #    - aptget_init
 
@@ -20,7 +16,7 @@
   roles:
     - tinc_fetch_gateway
 
-- hosts: gateway
+- hosts: nodes
   roles:
     - tinc_config
 
@@ -28,13 +24,12 @@
   roles:
     - tinc_push_hosts
 
-- hosts: gateway
+- hosts: nodes
   roles:
     - tinc_run
 
-#- hosts: gateway
+#- hosts: nodes
 #  roles:
 #    - network_config
-#    - dhcp_config
 #    - user_creation
 

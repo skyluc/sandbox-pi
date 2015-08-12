@@ -1,0 +1,8 @@
+---
+
+- hosts: allpi
+  remote_user: luc
+  roles:
+    - git_check
+    - user_config
+

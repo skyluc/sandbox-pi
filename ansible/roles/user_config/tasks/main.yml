@@ -1,0 +1,39 @@
+---
+
+- name: git clone general configs
+  git:
+    repo: git@github.com:skyluc/config.git
+    dest: ~/dev/skyluc/config
+    remote: perso
+    accept_hostkey: yes
+
+- name: link bash configuration
+  file:
+    src: ~/dev/skyluc/config/apps/bash/.bash_aliases
+    dest: ~/.bash_aliases
+    state: link
+
+- name: link '.git' config folder
+  file:
+    src: ~/dev/skyluc/config/apps/git/.git_folder
+    dest: ~/.git
+    state: link
+
+- name: link .gitconfig
+  file:
+    src: ~/dev/skyluc/config/apps/git/.gitconfig
+    dest: ~/.gitconfig
+    state: link
+
+- name: link '.vim' config folder
+  file:
+    src: ~/dev/skyluc/config/apps/vim/.vim
+    dest: ~/.vim
+    state: link
+
+- name: link .vimrc
+  file:
+    src: ~/dev/skyluc/config/apps/vim/.vimrc
+    dest: ~/.vimrc
+    state: link
+

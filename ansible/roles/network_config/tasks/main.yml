@@ -1,5 +1,19 @@
 ---
 
-- name: set hostname
+- name: set current hostname
   command: hostname '{{ hostname }}'
+  sudo: yes
+
+- name: configure hostname
+  template:
+    src: hostname.j2
+    dest: /etc/hostname
+  sudo: yes
+
+- name: configure /etc/hosts
+  lineinfile:
+    line: "{{ hostvars[item]['hostaddress'] }} {{ hostvars[item]['hostname'] }}"
+    regexp: "{{ hostvars[item]['hostname'] }}"
+    dest: /etc/hosts
+  with_items: groups['allpi'] 
   sudo: yes
