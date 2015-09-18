@@ -4,17 +4,17 @@
   roles:
     - local_clean
 
-#- hosts: tinc_gateway
-#  roles:
-#    - tinc_check
+- hosts: tinc_gateway
+  roles:
+    - tinc_check
 
-#- hosts: gateway
-#  roles:
-#    - git_check
+- hosts: gateway
+  roles:
+    - git_check
 
-#- hosts: gateway
-#  roles:
-#    - aptget_init
+- hosts: gateway
+  roles:
+    - aptget_init
 
 - hosts: tinc_gateway
   roles:
