@@ -3,3 +3,4 @@ hostname: pinodea
 hostaddress: 10.110.100.2
 ansible_ssh_host: 10.110.100.2
 tinc_address: 10.110.110.2
+mac_address: b8:27:eb:48:b7:c6

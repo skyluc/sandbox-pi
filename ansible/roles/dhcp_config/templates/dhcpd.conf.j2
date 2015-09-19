@@ -1,0 +1,22 @@
+ddns-update-style none;
+
+authoritative;
+
+log-facility local7;
+
+subnet 10.110.100.0 netmask 255.255.255.0 {
+  range 10.110.100.100 10.110.100.254;
+  option domain-name-servers 8.8.8.8, 8.8.4.4;
+  option domain-name "pi.skyluc.org";
+  option routers 10.110.100.1;
+  option broadcast-address 10.110.100.255;
+  max-lease-time 7200;
+  default-lease-time 600;
+{% for host in groups['allpi'] %}
+  host {{ hostvars[host]['hostname'] }} {
+    hardware ethernet {{ hostvars[host]['mac_address'] }};
+    fixed-address {{ hostvars[host]['hostaddress'] }};
+  }
+{% endfor %}
+}
+

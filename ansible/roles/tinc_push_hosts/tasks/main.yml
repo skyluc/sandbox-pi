@@ -2,6 +2,8 @@
 
 - name: push tinc hosts files to gateway
   copy:
-    src: "/tmp/ansible/tinc/hosts-local/"
+    src: "{{ item }}"
     dest: "/etc/tinc/skylucPerso/hosts/"
+  with_fileglob:
+    - /tmp/ansible/tinc/hosts-local/*
 

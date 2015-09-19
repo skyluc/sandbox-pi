@@ -1,0 +1,35 @@
+- name: install dhcp server
+  apt:
+    name: isc-dhcp-server
+    state: present
+  sudo: yes
+
+- name: configure dhcp server
+  template:
+    src: dhcpd.conf.j2
+    dest: /etc/dhcp/dhcpd.conf
+  sudo: yes
+
+- name: restart dhcp server
+  command: /etc/init.d/isc-dhcp-server restart
+  sudo: yes
+
+- name: enable IPv4 forwarding
+  lineinfile:
+    dest: /etc/sysctl.conf
+    line: "net.ipv4.ip_forward=1"
+    regexp: "net.ipv4.ip_forward"
+  sudo: yes
+
+- name: iptable configuration
+  copy:
+    src: iptables.up.rules
+    dest: /etc/network/iptables.up.rules
+  sudo: yes
+
+- name: script to restore iptables on boot
+  copy:
+    src: iptables
+    dest: /etc/network/if-pre-up.d/iptables
+    mode: 0755
+  sudo: yes

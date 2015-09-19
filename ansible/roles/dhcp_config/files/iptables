@@ -1,0 +1,6 @@
+#!/bin/sh
+#This script restores iptables during boot
+
+iptables-restore < /etc/network/iptables.up.rules
+
+exit 0

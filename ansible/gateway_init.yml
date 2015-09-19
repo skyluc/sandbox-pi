@@ -32,9 +32,10 @@
   roles:
     - tinc_run
 
-#- hosts: gateway
-#  roles:
-#    - network_config
-#    - dhcp_config
-#    - user_creation
+- hosts: gateway
+  roles:
+    - network_config
+    - dhcp_config
+    - user_creation
+    - aptget_user
 

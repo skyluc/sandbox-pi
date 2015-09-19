@@ -3,3 +3,4 @@ hostname: pinodeb
 hostaddress: 10.110.100.3
 ansible_ssh_host: 10.110.100.3
 tinc_address: 10.110.110.3
+mac_address: b8:27:eb:17:08:93
