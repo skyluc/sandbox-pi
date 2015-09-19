@@ -8,9 +8,9 @@
   roles:
     - tinc_check
 
-#- hosts: nodes 
-#  roles:
-#    - aptget_init
+- hosts: nodes 
+  roles:
+    - aptget_init
 
 - hosts: tinc_gateway
   roles:
@@ -28,8 +28,8 @@
   roles:
     - tinc_run
 
-#- hosts: nodes
-#  roles:
-#    - network_config
-#    - user_creation
+- hosts: nodes
+  roles:
+    - network_config
+    - user_creation
 
