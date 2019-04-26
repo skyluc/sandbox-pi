@@ -8,7 +8,8 @@ lazy val root = (project in file("."))
     organization := "org.skyluc",
     libraryDependencies ++= Seq(
       "com.diozero" % "diozero-ws281x-java" % "0.11",
-      "com.diozero" % "diozero-core" % "0.11"
+      "com.diozero" % "diozero-core" % "0.11",
+      "com.pi4j" % "pi4j-core" % "1.2"
 //      "com.github.mbelling" % "rpi-ws281x-java" % "2.0.0"
     ),
     Compile / run / fork := true
