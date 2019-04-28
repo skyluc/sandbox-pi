@@ -27,6 +27,8 @@ object Adafruit_1109 {
   case object CursorMoveLeftOnWrite extends Commands
   case object DisplayOn extends Commands
   case object DisplayOff extends Commands
+  case class ShiftRight(steps: Int = 1) extends Commands
+  case class ShiftLeft(steps: Int = 1) extends Commands
   case class Write(text: String) extends Commands
   case class RGBColor(red: Boolean, green: Boolean, blue: Boolean)
       extends Commands
@@ -69,6 +71,12 @@ object Adafruit_1109 {
         val s = state.copy(displayOn = false)
         i2cToLcd.displayOnOffControl(s)
         commands(s)
+      case ShiftRight(steps) =>
+        i2cToLcd.shiftRight(steps, state)
+        Behavior.same
+      case ShiftLeft(steps) =>
+        i2cToLcd.shiftLeft(steps, state)
+        Behavior.same
       case Write(text) =>
         i2cToLcd.write(text, state)
         Behavior.same
@@ -157,6 +165,30 @@ object Adafruit_1109 {
             state.cursorBlinkOn,
             DISPLAY_ON_OFF_CONTROL_B_BIT
           )
+        ),
+        state
+      )
+    }
+
+    def shiftRight(steps: Int, state: State): Unit = {
+      (0 until steps).foreach(_ => cursorDisplayShift(true, true, state))
+    }
+
+    def shiftLeft(steps: Int, state: State): Unit = {
+      (0 until steps).foreach(_ => cursorDisplayShift(true, false, state))
+    }
+
+    private def cursorDisplayShift(
+        displayShift: Boolean,
+        toTheRgiht: Boolean,
+        state: State
+    ): Unit = {
+      sendCommand(
+        b(
+          CURSOR_DISPLAY_SHIFT_BIT | ifv(
+            displayShift,
+            CURSOR_DISPLAY_SHIFT_SC_BIT
+          ) | ifv(toTheRgiht, CURSOR_DISPLAY_SHIFT_RL_BIT)
         ),
         state
       )
