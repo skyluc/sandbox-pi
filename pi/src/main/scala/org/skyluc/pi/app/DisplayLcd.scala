@@ -22,10 +22,14 @@ object DisplayLcd {
   case class Step(text: String, red: Boolean, green: Boolean, blue: Boolean)
 
   val steps = List(
-    Step("black", false, false, false),
-    Step("red", true, false, false),
-    Step("green", false, true, false),
-    Step("blue", false, false, true)
+    Step("Black", false, false, false),
+    Step("Red", true, false, false),
+    Step("Green", false, true, false),
+    Step("Blue", false, false, true),
+    Step("Cyan", false, true, true),
+    Step("Magenta", true, false, true),
+    Step("Yellow", true, true, false),
+    Step("White", true, true, true)
   )
 
   class Program(lcd: ActorRef[Adafruit_1109.Commands]) {
