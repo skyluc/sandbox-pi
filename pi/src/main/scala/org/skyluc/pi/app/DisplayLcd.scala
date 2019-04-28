@@ -39,6 +39,7 @@ object DisplayLcd {
               lcd ! Adafruit_1109.CursorHome
               lcd ! Adafruit_1109.ClearDisplay
               lcd ! Adafruit_1109.RGBColor(head.red, head.green, head.blue)
+              lcd ! Adafruit_1109.Write(head.text)
               program(tail)
             case Nil =>
               Behaviors.stopped

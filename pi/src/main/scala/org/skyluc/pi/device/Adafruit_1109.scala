@@ -27,6 +27,7 @@ object Adafruit_1109 {
   case object CursorMoveLeftOnWrite extends Commands
   case object DisplayOn extends Commands
   case object DisplayOff extends Commands
+  case class Write(text: String) extends Commands
   case class RGBColor(red: Boolean, green: Boolean, blue: Boolean)
       extends Commands
 
@@ -68,6 +69,9 @@ object Adafruit_1109 {
         val s = state.copy(displayOn = false)
         i2cToLcd.displayOnOffControl(s)
         commands(s)
+      case Write(text) =>
+        i2cToLcd.write(text, state)
+        Behavior.same
       case RGBColor(red, green, blue) =>
         val s = state.copy(red = red, green = green, blue = blue)
         i2cToLcd.color(s)
@@ -165,6 +169,14 @@ object Adafruit_1109 {
       )
     }
 
+    def write(text: String, state: State): Unit = {
+      for (
+        c <- text.toCharArray()
+      ) {
+        sendChar(c.toByte, state)
+      }
+    }
+
     def color(state: State): Unit = {
       outputGPA(0x0, state)
       outputGPB(0x0, state)
@@ -173,6 +185,11 @@ object Adafruit_1109 {
     private def sendCommand(command: Byte, state: State): Unit = {
       flashGPB(i2cValueHighBits(command), state)
       flashGPB(i2cValueLowBits(command), state)
+    }
+
+    private def sendChar(c: Byte, state: State): Unit = {
+      flashGPB(b(RS_BIT | i2cValueHighBits(c)), state)
+      flashGPB(b(RS_BIT | i2cValueLowBits(c)), state)
     }
 
     private def flashGPB(v: Byte, state: State): Unit = {
