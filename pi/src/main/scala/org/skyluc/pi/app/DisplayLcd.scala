@@ -40,6 +40,7 @@ object DisplayLcd {
               lcd ! Adafruit_1109.ClearDisplay
               lcd ! Adafruit_1109.RGBColor(head.red, head.green, head.blue)
               lcd ! Adafruit_1109.Write(head.text)
+              println(head.text)
               program(tail)
             case Nil =>
               Behaviors.stopped
@@ -50,6 +51,7 @@ object DisplayLcd {
 
   private val behavior: Behavior[Adafruit_1109.Initialized] =
     Behaviors.receive { (context, initialized) =>
+      initialized.lcd ! Adafruit_1109.DisplayOn
       val p = new Program(initialized.lcd)
       val pb = context.spawn(p.program(steps), "Program")
       context.watch(pb)

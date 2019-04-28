@@ -114,12 +114,17 @@ object Adafruit_1109 {
       // initialize GPB as all output
       dev.write(0x01, b(0x00))
 
+      // reset RGB
+      color(state)
+
       // force to 8 bits operation, then set to 4 bits
       sendCommand(b(0x33), state)
       sendCommand(b(0x32), state)
 
       //initialize
       functionSet(state)
+      // clear old state
+      clearDisplay(state)
     }
 
     def clearDisplay(state: State): Unit = {
@@ -170,9 +175,7 @@ object Adafruit_1109 {
     }
 
     def write(text: String, state: State): Unit = {
-      for (
-        c <- text.toCharArray()
-      ) {
+      for (c <- text.toCharArray()) {
         sendChar(c.toByte, state)
       }
     }
@@ -185,6 +188,7 @@ object Adafruit_1109 {
     private def sendCommand(command: Byte, state: State): Unit = {
       flashGPB(i2cValueHighBits(command), state)
       flashGPB(i2cValueLowBits(command), state)
+      Thread.sleep(1)
     }
 
     private def sendChar(c: Byte, state: State): Unit = {
@@ -201,16 +205,16 @@ object Adafruit_1109 {
       val out = b(
         v | ifnv(state.red, RED_BIT) | ifnv(state.green, GREEN_BIT)
       )
-      println(f"GPA: ${binaryString(out)}")
+//      println(f"GPA: ${binaryString(out)}")
       dev.write(
-        0x13,
+        0x12,
         out
       )
     }
 
     private def outputGPB(v: Byte, state: State): Unit = {
       val out = b(v | ifnv(state.blue, BLUE_BIT))
-      println(f"GPB: ${binaryString(out)}")
+//      println(f"GPB: ${binaryString(out)}")
       dev.write(0x13, out)
     }
 
