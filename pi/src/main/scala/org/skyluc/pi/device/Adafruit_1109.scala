@@ -182,7 +182,7 @@ object Adafruit_1109 {
 
     private def outputGPA(v: Byte, state: State): Unit = {
       val out = b(
-        v | ifv(state.red, RED_BIT) | ifv(state.green, GREEN_BIT)
+        v | ifnv(state.red, RED_BIT) | ifnv(state.green, GREEN_BIT)
       )
       println(f"GPA: ${binaryString(out)}")
       dev.write(
@@ -192,7 +192,7 @@ object Adafruit_1109 {
     }
 
     private def outputGPB(v: Byte, state: State): Unit = {
-      val out = b(v | ifv(state.blue, BLUE_BIT))
+      val out = b(v | ifnv(state.blue, BLUE_BIT))
       println(f"GPB: ${binaryString(out)}")
       dev.write(0x13, out)
     }
@@ -278,6 +278,8 @@ object Adafruit_1109 {
 
     def ifv(flag: Boolean, v: Byte): Byte = if (flag) v else 0
 
+    def ifnv(flag: Boolean, v: Byte): Byte = if (flag) 0 else v
+
     def binaryString(b: Byte): String = {
       import scala.annotation.tailrec
       @tailrec
@@ -286,7 +288,7 @@ object Adafruit_1109 {
           acc.mkString("")
         } else {
           val v = if ((b & 0x01) != 0) "1" else "0"
-          loop(b >> 1, i -1, v :: acc)
+          loop(b >> 1, i - 1, v :: acc)
         }
       }
 

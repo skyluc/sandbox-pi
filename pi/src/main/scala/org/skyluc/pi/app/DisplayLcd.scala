@@ -65,9 +65,9 @@ object DisplayLcd {
     val dev = bus.getDevice(0x20)
 
     val main: Behavior[NotUsed] = Behaviors.setup { context =>
-      val lcd = context.spawn(Adafruit_1109.factory, "LCD factory")
+      val lcd = context.spawn(Adafruit_1109.factory, "LCD-factory")
 
-      val display = context.spawn(DisplayLcd.behavior, "Display LCD")
+      val display = context.spawn(DisplayLcd.behavior, "Display-LCD")
       context.watch(display)
 
       lcd ! Adafruit_1109.Initialize(dev, display)
@@ -79,6 +79,6 @@ object DisplayLcd {
 
     }
 
-    ActorSystem(main, "LCD Display")
+    ActorSystem(main, "LCD-Display")
   }
 }
