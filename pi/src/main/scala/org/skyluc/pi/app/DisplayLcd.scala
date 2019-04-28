@@ -42,7 +42,7 @@ object DisplayLcd {
             case head :: tail =>
               // lcd ! Adafruit_1109.CursorHome
               // lcd ! Adafruit_1109.ClearDisplay
-              lcd ! Adafruit_1109.ShiftRight(2)
+              if (head.text != "Black") lcd ! Adafruit_1109.ShiftLeft(2)
               lcd ! Adafruit_1109.RGBColor(head.red, head.green, head.blue)
               lcd ! Adafruit_1109.Write(head.text)
               println(head.text)
