@@ -9,10 +9,14 @@ import akka.actor.typed.Behavior
 import akka.actor.typed.Terminated
 import akka.actor.typed.scaladsl.Behaviors
 
-import com.pi4j.io.i2c.I2CFactory
-import com.pi4j.io.i2c.I2CBus
-
 import scala.concurrent.duration._
+import org.skyluc.pi.device.I2CDevice
+import org.skyluc.pi.device.I2C
+import org.skyluc.pi.device.I2C_HW
+
+import akka.util.Timeout
+import scala.concurrent.duration._
+import org.skyluc.pi.emul.I2C_Emul
 
 object DisplayLcd {
 
@@ -54,31 +58,44 @@ object DisplayLcd {
       }
   }
 
-  private val behavior: Behavior[Adafruit_1109.Initialized] =
-    Behaviors.receive { (context, initialized) =>
-      initialized.lcd ! Adafruit_1109.DisplayOn
-      val p = new Program(initialized.lcd)
-      val pb = context.spawn(p.program(steps), "Program")
-      context.watch(pb)
-
-      Behaviors.receiveSignal {
-        case (_, Terminated(_)) =>
-          Behavior.stopped
-      }
-    }
+  trait Command
+  case object Start extends Command
+  case class I2CDeviceInitialized(dev: ActorRef[I2CDevice.Command])
+      extends Command
+  case class Adafruit_1109Initialized(dev: ActorRef[Adafruit_1109.Commands])
+      extends Command
+  case object ProgramDone extends Command
 
   def main(args: Array[String]): Unit = {
+    implicit val timeout = Timeout(2 seconds)
 
-    val bus = I2CFactory.getInstance(I2CBus.BUS_1)
-    val dev = bus.getDevice(0x20)
+    def mainLoop(i2c: ActorRef[I2C.GetDevice]): Behavior[Command] =
+      Behaviors.receive(
+        (context, message) =>
+          message match {
+            case Start =>
+              context.ask[I2C.GetDevice, I2C.Device](i2c)(
+                a => I2C.GetDevice(I2C.BUS_01, 0x20, a)
+              )(r => I2CDeviceInitialized(r.get.device))
+              Behavior.same
+            case I2CDeviceInitialized(dev) =>
+              val adafruit_1109 = Adafruit_1109.create(dev, context)
+              val program = new Program(adafruit_1109)
+              val programActor =
+                context.spawn(program.program(steps), "Program")
+              context.watchWith(programActor, ProgramDone)
+              Behavior.same
+            case ProgramDone =>
+              Behavior.stopped
+          }
+      )
 
     val main: Behavior[NotUsed] = Behaviors.setup { context =>
-      val lcd = context.spawn(Adafruit_1109.factory, "LCD-factory")
+      val i2c = context.spawn(I2C_Emul.deviceProvider, "i2c")
 
-      val display = context.spawn(DisplayLcd.behavior, "Display-LCD")
-      context.watch(display)
-
-      lcd ! Adafruit_1109.Initialize(dev, display)
+      val loop = context.spawn(mainLoop(i2c), "main-loop")
+      context.watch(loop)
+      loop ! Start
 
       Behaviors.receiveSignal {
         case (_, Terminated(_)) =>

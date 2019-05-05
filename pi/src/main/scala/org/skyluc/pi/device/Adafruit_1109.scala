@@ -4,7 +4,8 @@ import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{Behavior}
 import akka.actor.typed.ActorRef
 
-import com.pi4j.io.i2c.I2CDevice
+import org.skyluc.pi.ByteHelper._
+import akka.actor.typed.scaladsl.ActorContext
 
 /**
   * 16x2 LCD with RBG + keypad from Adafruit, I2C.
@@ -17,7 +18,10 @@ import com.pi4j.io.i2c.I2CDevice
   */
 object Adafruit_1109 {
 
-  case class Initialize(dev: I2CDevice, replyTo: ActorRef[Initialized])
+  case class Initialize(
+      dev: ActorRef[I2CDevice.Command],
+      replyTo: ActorRef[Initialized]
+  )
   case class Initialized(lcd: ActorRef[Commands])
 
   sealed trait Commands
@@ -33,18 +37,17 @@ object Adafruit_1109 {
   case class RGBColor(red: Boolean, green: Boolean, blue: Boolean)
       extends Commands
 
-  def factory: Behavior[Initialize] = Behaviors.receive {
-    (context, initialize) =>
-      val dev = initialize.dev
-      val state = State()
-      val lcd = new LCD(dev)
-      lcd.initialize(state)
-      val lcdRef = context.spawn(lcd.commands(state), "LCD")
-      initialize.replyTo ! Initialized(lcdRef)
-      Behavior.same
+  def create(
+      dev: ActorRef[I2CDevice.Command],
+      actorSystem: ActorContext[_]
+  ): ActorRef[Commands] = {
+    val lcd = new LCD(dev)
+    val state = State()
+    lcd.initialize(state)
+    actorSystem.spawn(lcd.commands(state), "Adafruit-1109")
   }
 
-  private class LCD(dev: I2CDevice) {
+  private class LCD(dev: ActorRef[I2CDevice.Command]) {
 
     val i2cToLcd = new I2CtoLCD(dev)
 
@@ -111,16 +114,16 @@ object Adafruit_1109 {
       State(true, false, false, false, false, false, false, false)
   }
 
-  private class I2CtoLCD(dev: I2CDevice) {
+  private class I2CtoLCD(dev: ActorRef[I2CDevice.Command]) {
 
     import I2CtoLCD._
 
     def initialize(state: State): Unit = {
       // initialize GPA as all output
       // TODO: need input for keys
-      dev.write(0x00, b(0x00))
+      dev ! I2CDevice.Write(0x00, b(0x00))
       // initialize GPB as all output
-      dev.write(0x01, b(0x00))
+      dev ! I2CDevice.Write(0x01, b(0x00))
 
       // reset RGB
       color(state)
@@ -238,7 +241,7 @@ object Adafruit_1109 {
         v | ifnv(state.red, RED_BIT) | ifnv(state.green, GREEN_BIT)
       )
 //      println(f"GPA: ${binaryString(out)}")
-      dev.write(
+      dev ! I2CDevice.Write(
         0x12,
         out
       )
@@ -247,7 +250,7 @@ object Adafruit_1109 {
     private def outputGPB(v: Byte, state: State): Unit = {
       val out = b(v | ifnv(state.blue, BLUE_BIT))
 //      println(f"GPB: ${binaryString(out)}")
-      dev.write(0x13, out)
+      dev ! I2CDevice.Write(0x13, out)
     }
 
     private def i2cValueHighBits(v: Byte): Byte = {
@@ -325,27 +328,5 @@ object Adafruit_1109 {
     private final val FUNCTION_SET_N_BIT = 0x08
     private final val FUNCTION_SET_F_BIT = 0x04
 
-    def b(i: Int): Byte = {
-      i.toByte
-    }
-
-    def ifv(flag: Boolean, v: Byte): Byte = if (flag) v else 0
-
-    def ifnv(flag: Boolean, v: Byte): Byte = if (flag) 0 else v
-
-    def binaryString(b: Byte): String = {
-      import scala.annotation.tailrec
-      @tailrec
-      def loop(b: Int, i: Int, acc: List[String]): String = {
-        if (i == 0) {
-          acc.mkString("")
-        } else {
-          val v = if ((b & 0x01) != 0) "1" else "0"
-          loop(b >> 1, i - 1, v :: acc)
-        }
-      }
-
-      loop(b, 8, Nil)
-    }
   }
 }
