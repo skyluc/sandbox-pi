@@ -34,8 +34,7 @@ object Adafruit_1109 {
   case class ShiftRight(steps: Int = 1) extends Commands
   case class ShiftLeft(steps: Int = 1) extends Commands
   case class Write(text: String) extends Commands
-  case class RGBColor(red: Boolean, green: Boolean, blue: Boolean)
-      extends Commands
+  case class RGBColor(red: Boolean, green: Boolean, blue: Boolean) extends Commands
 
   def create(
       dev: ActorRef[I2CDevice.Command],

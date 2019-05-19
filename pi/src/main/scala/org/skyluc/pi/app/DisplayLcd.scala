@@ -12,11 +12,12 @@ import akka.actor.typed.scaladsl.Behaviors
 import scala.concurrent.duration._
 import org.skyluc.pi.device.I2CDevice
 import org.skyluc.pi.device.I2C
-import org.skyluc.pi.device.I2C_HW
 
 import akka.util.Timeout
 import scala.concurrent.duration._
 import org.skyluc.pi.emul.I2C_Emul
+import org.skyluc.pi.emul.I2CDevice_Emul
+import org.skyluc.pi.emul.MCP23017
 
 object DisplayLcd {
 
@@ -60,10 +61,8 @@ object DisplayLcd {
 
   trait Command
   case object Start extends Command
-  case class I2CDeviceInitialized(dev: ActorRef[I2CDevice.Command])
-      extends Command
-  case class Adafruit_1109Initialized(dev: ActorRef[Adafruit_1109.Commands])
-      extends Command
+  case class I2CDeviceInitialized(dev: ActorRef[I2CDevice.Command]) extends Command
+  case class Adafruit_1109Initialized(dev: ActorRef[Adafruit_1109.Commands]) extends Command
   case object ProgramDone extends Command
 
   def main(args: Array[String]): Unit = {
@@ -91,9 +90,18 @@ object DisplayLcd {
       )
 
     val main: Behavior[NotUsed] = Behaviors.setup { context =>
-      val i2c = context.spawn(I2C_Emul.deviceProvider, "i2c")
+      val (i2cProvider, i2cManager) = I2C_Emul.init(context)
 
-      val loop = context.spawn(mainLoop(i2c), "main-loop")
+      // val i2cDevice = context.spawn(
+      //   I2CDevice_Emul.device(I2C.BUS_01, 0x20),
+      //   "I2C-Device-Emulator"
+      // )
+
+      val (mcp23017, mcp23017Manager) = MCP23017.init(context)
+
+      i2cManager ! I2C_Emul.RegisterDevice(I2C.BUS_01, 0x20, mcp23017)
+
+      val loop = context.spawn(mainLoop(i2cProvider), "main-loop")
       context.watch(loop)
       loop ! Start
 
